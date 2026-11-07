@@ -1058,6 +1058,14 @@ BusHub75Matrix::BusHub75Matrix(const BusConfig &bc) : Bus(bc.type, bc.start, bc.
   DEBUGBUS_PRINTLN("MatrixPanel_I2S_DMA - Matrix Portal S3 config");
   mxconfig.gpio = { 42, 41, 40, 38, 39, 37,  45, 36, 48, 35, 21, 47, 14, 2 };
 
+#elif defined(HD_WF4_S3_PINOUT) // Huidu HD-WF4 ESP32-S3
+  // https://www.aliexpress.com/item/32832120478.html
+  DEBUGBUS_PRINTLN("MatrixPanel_I2S_DMA - HD-WF4 S3 config");
+  // HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, E_PIN, LAT_PIN, OE_PIN, CLK_PIN};
+  mxconfig.gpio = { 2, 6, 10, 3, 7, 11, 39, 38, 37, 36, 21, 33, 35, 34 };
+  #define HD_WF4_PORT_X1_X2_EN  45
+  #define HD_WF4_PORT_X3_X4_EN  14
+
 #elif defined(HD_WF2_PINOUT) || defined(HD_WF2_S3_PINOUT) // Huidu HD-WF2 ESP32-S3 (no PSRAM)
   // https://www.aliexpress.com/item/1005002258734810.html
   // https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/issues/433
@@ -1208,6 +1216,15 @@ BusHub75Matrix::BusHub75Matrix(const BusConfig &bc) : Bus(bc.type, bc.start, bc.
   }
 
   DEBUGBUS_PRINTLN("MatrixPanel_I2S_DMA created");
+
+  #ifdef HD_WF4_S3_PINOUT
+    // Enable HD-WF4 output ports
+    pinMode(HD_WF4_PORT_X1_X2_EN, OUTPUT);
+    pinMode(HD_WF4_PORT_X3_X4_EN, OUTPUT);
+
+    digitalWrite(HD_WF4_PORT_X1_X2_EN, HIGH);
+    digitalWrite(HD_WF4_PORT_X3_X4_EN, HIGH);
+  #endif
 
   // as noted in HUB75_I2S_DMA library, some panels can show ghosting if set higher than 239, so let users override at compile time
   #ifndef WLED_HUB75_MAX_BRIGHTNESS
